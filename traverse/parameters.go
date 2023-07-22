@@ -6,7 +6,11 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
+// Parameters traverses #/components/parameters
 func Parameters(doc *openapi3.T, visitor ParameterRefVisitor) error {
+	if doc.Components == nil {
+		return nil
+	}
 
 	parameters := doc.Components.Parameters
 	var err error

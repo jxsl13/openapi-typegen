@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Exec executes the cobra command and collects the output into a buffer for further analysis.
 func Exec(cmd *cobra.Command, args ...string) (out []byte, err error) {
 	b := bytes.NewBuffer(nil)
 	cmd.SetOut(b)

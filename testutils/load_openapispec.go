@@ -9,6 +9,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
+// LoadSpec loads an openapi spec relative to the current go file's location.
 func LoadSpec(relativeFilePath string) (doc *openapi3.T) {
 	return loadSpec(FilePath(relativeFilePath))
 }
@@ -28,6 +29,8 @@ func loadSpec(absolutePath string) (doc *openapi3.T) {
 	return doc
 }
 
+// LoadSpecs looks into the directory path relative to the current go file's directory path.
+// You may pass a regular expression to match a specific subset of files in the passed directory.
 func LoadSpecs(regex, dirPath string) map[string]*openapi3.T {
 	dirPath = FilePath(dirPath)
 	re := regexp.MustCompile(regex)

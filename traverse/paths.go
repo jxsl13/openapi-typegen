@@ -2,6 +2,7 @@ package traverse
 
 import "github.com/getkin/kin-openapi/openapi3"
 
+// Paths traverses #/paths
 func Paths(doc openapi3.T, visitor PathVisitor) error {
 	if doc.Paths == nil {
 		return nil
