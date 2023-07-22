@@ -3,7 +3,6 @@ package config
 import (
 	"context"
 	"fmt"
-	"io"
 	"os"
 	"os/signal"
 	"strings"
@@ -18,6 +17,7 @@ func NewDefaultConfig() Config {
 	return Config{
 		OutFilePath: "stdout",
 		outFile:     os.Stdout,
+		PackageName: "api",
 
 		ctx: ctx,
 		cf:  cf,
@@ -27,23 +27,28 @@ func NewDefaultConfig() Config {
 type Config struct {
 	OpenAPIFilePath string `koanf:"file" short:"f" description:"only compare directories"`
 	OutFilePath     string `koanf:"out" short:"o" description:"out file path or 'stdout'"`
+	PackageName     string `koanf:"package" short:"p" description:"package name of the generated file"`
 
-	openApiSpec *openapi3.T    `koanf:"-"`
-	outFile     io.WriteCloser `koanf:"-"`
+	openApiSpec *openapi3.T `koanf:"-"`
+	outFile     *os.File    `koanf:"-"`
 	ctx         context.Context
 	cf          context.CancelFunc
 }
 
 func (c *Config) Close() error {
 	c.cf()
-	return c.outFile.Close()
+
+	if c.outFile != os.Stdout {
+		return c.outFile.Close()
+	}
+	return nil
 }
 
 func (c *Config) Context() context.Context {
 	return c.ctx
 }
 
-func (c *Config) Out() io.Writer {
+func (c *Config) OutFile() *os.File {
 	return c.outFile
 }
 

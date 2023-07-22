@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/jxsl13/openapi-typegen/cmd/openapi-typegen/config"
+	"github.com/k0kubun/pp/v3"
 	"github.com/spf13/cobra"
 )
 
@@ -33,7 +35,7 @@ type RootContext struct {
 func (c *RootContext) PreRunE(cmd *cobra.Command) {
 	c.Config = config.NewDefaultConfig()
 	// parse config
-	runParser := config.RegisterFlags(&c.Config, true, cmd)
+	runParser := config.RegisterFlags(&c.Config, false, cmd)
 
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
@@ -41,7 +43,15 @@ func (c *RootContext) PreRunE(cmd *cobra.Command) {
 			c.Config.OpenAPIFilePath = args[0]
 		}
 		// overwrite with flags or env
-		return runParser()
+		err := runParser()
+		if err != nil {
+			return err
+		}
+
+		if c.Config.OutFile() != os.Stdout {
+			cmd.SetOut(c.Config.OutFile())
+		}
+		return nil
 	}
 }
 
@@ -52,5 +62,12 @@ func (c *RootContext) PostRunE(cmd *cobra.Command) {
 }
 
 func (c *RootContext) RunE(cmd *cobra.Command, args []string) (err error) {
+	doc := c.Config.Document()
+	out := cmd.OutOrStdout()
+
+	for k, v := range doc.Components.Schemas {
+		pp.Fprintf(out, "%s -> %v\n", k, v)
+	}
+
 	return nil
 }
