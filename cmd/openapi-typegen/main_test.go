@@ -15,7 +15,7 @@ func TestHelp(t *testing.T) {
 }
 
 func Test001(t *testing.T) {
-	out, err := testutils.Exec(main.NewRootCmd(), "-f", testutils.FilePath("../../testdata/001_petstore-expanded.yaml"))
+	out, err := testutils.Exec(main.NewRootCmd(), "-f", testutils.FilePath("../../testdata/001_mangadex.yaml"))
 	require.NoError(t, err)
 	require.NotEmpty(t, out, "output is empty")
 }
