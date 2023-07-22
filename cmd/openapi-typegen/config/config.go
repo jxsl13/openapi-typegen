@@ -55,7 +55,7 @@ func (c *Config) Validate() error {
 	if !strings.EqualFold(c.OutFilePath, "stdout") {
 		f, err := os.Create(c.OutFilePath)
 		if err != nil {
-			return fmt.Errorf("faile to open out file %q: %w", c.OutFilePath, err)
+			return fmt.Errorf("failed to open out file %q: %w", c.OutFilePath, err)
 		}
 		c.outFile = f
 	} else {
