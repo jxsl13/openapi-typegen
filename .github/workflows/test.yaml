@@ -41,7 +41,7 @@ jobs:
     - name: Install tidied
       run: go install gitlab.com/jamietanna/tidied@latest
 
-    - name: Check if `go mod tidy` was run
+    - name: Check if go mod tidy was run
       run: tidied -verbose
 
     - name: Code Coverage
