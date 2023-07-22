@@ -12,9 +12,9 @@ go mod install github.com/jxsl13/openapi-typegen/cmd/openapi-typegen@latest
 ```shell
 $ openapi-typegen --help
 
-  OPENAPI_FILE       only compare directories
-  OPENAPI_OUT        out file path or 'stdout' (default: "stdout")
-  OPENAPI_PACKAGE    package name of the generated file (default: "api")
+  TYPEGEN_FILE       file path to your openapi.yaml (default: "openapi.yaml")
+  TYPEGEN_OUT        out file path or 'stdout' (default: "stdout")
+  TYPEGEN_PACKAGE    package name of the generated file (default: "api")
 
 Usage:
   openapi-typegen -p api -f openapi.yaml -o types.gen.go [flags]
@@ -25,7 +25,7 @@ Available Commands:
   help        Help about any command
 
 Flags:
-  -f, --file string      only compare directories
+  -f, --file string      file path to your openapi.yaml (default "openapi.yaml")
   -h, --help             help for openapi-typegen
   -o, --out string       out file path or 'stdout' (default "stdout")
   -p, --package string   package name of the generated file (default "api")

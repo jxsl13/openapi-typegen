@@ -16,9 +16,10 @@ func NewDefaultConfig() Config {
 	ctx, cf := signal.NotifyContext(context.Background(), os.Interrupt)
 
 	return Config{
-		OutFilePath: "stdout",
-		outFile:     os.Stdout,
-		PackageName: "api",
+		OutFilePath:     "stdout",
+		outFile:         os.Stdout,
+		OpenAPIFilePath: "openapi.yaml",
+		PackageName:     "api",
 
 		ctx: ctx,
 		cf:  cf,
@@ -26,7 +27,7 @@ func NewDefaultConfig() Config {
 }
 
 type Config struct {
-	OpenAPIFilePath string `koanf:"file" short:"f" description:"only compare directories"`
+	OpenAPIFilePath string `koanf:"file" short:"f" description:"file path to your openapi.yaml"`
 	OutFilePath     string `koanf:"out" short:"o" description:"out file path or 'stdout'"`
 	PackageName     string `koanf:"package" short:"p" description:"package name of the generated file"`
 
