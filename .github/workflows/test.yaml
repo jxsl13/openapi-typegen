@@ -38,6 +38,12 @@ jobs:
     - name: Vet
       run: go vet ./...
 
+    - name: Install tidied
+      run: go install gitlab.com/jamietanna/tidied@latest
+
+    - name: Check if `go mod tidy` was run
+      run: tidied -verbose
+
     - name: Code Coverage
       run: go test ./... -timeout 600s -race -count=1 -covermode=atomic -coverprofile=coverage.txt
 
@@ -48,3 +54,6 @@ jobs:
         files: ./coverage.txt
         fail_ci_if_error: false
         verbose: false
+    
+    - name: Build generator
+      run: make build && make clean
