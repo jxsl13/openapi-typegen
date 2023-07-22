@@ -6,6 +6,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
+// Schemas traverses #/components/schemas
 func Schemas(doc *openapi3.T, visitor SchemaRefVisitor) error {
 	if doc.Components == nil || doc.Components.Schemas == nil {
 		return nil
