@@ -15,7 +15,7 @@ func NewRootCmd() *cobra.Command {
 
 	// rootCmd represents the run command
 	rootCmd := &cobra.Command{
-		Use:   fmt.Sprintf("%s openapi.yaml", appName),
+		Use:   fmt.Sprintf("%s -p api -f openapi.yaml -o types.gen.go", appName),
 		Short: "generate types for a given OpenAPI 3.0.x specification.",
 		RunE:  rootContext.RunE,
 	}
