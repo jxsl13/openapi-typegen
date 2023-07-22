@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"strings"
@@ -48,7 +49,7 @@ func (c *Config) Context() context.Context {
 	return c.ctx
 }
 
-func (c *Config) OutFile() *os.File {
+func (c *Config) Out() io.Writer {
 	return c.outFile
 }
 

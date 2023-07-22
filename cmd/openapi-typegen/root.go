@@ -48,8 +48,9 @@ func (c *RootContext) PreRunE(cmd *cobra.Command) {
 			return err
 		}
 
-		if c.Config.OutFile() != os.Stdout {
-			cmd.SetOut(c.Config.OutFile())
+		// only set output if it is not stdout, as cobra already uses stdout by default
+		if c.Config.Out() != os.Stdout {
+			cmd.SetOut(c.Config.Out())
 		}
 		return nil
 	}
