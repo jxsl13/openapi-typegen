@@ -40,6 +40,7 @@ func ToTitle(name string) string {
 
 // Join concatenates all strings removing duplicate overlaps between joins
 // and overlaps across all previous joined strings with the next
+// abC + CdF + Fgh = abCdeFgh
 func Join(names ...string) string {
 	if len(names) == 0 {
 		return ""
