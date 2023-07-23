@@ -7,7 +7,10 @@ import (
 	"github.com/jxsl13/openapi-typegen/names"
 )
 
+var ParameterNameSuffix = "Parameter"
+
 // Parameters traverses #/components/parameters
+// and individual inline defined parameters
 func Parameters(doc *openapi3.T, visitor ParameterRefVisitor) error {
 	if doc.Components == nil {
 		return nil
@@ -31,12 +34,16 @@ func Parameters(doc *openapi3.T, visitor ParameterRefVisitor) error {
 		}
 	}
 
-	for _, v := range doc.Paths {
+	for k, v := range doc.Paths {
 		if v.Ref != "" {
 			// assumption: seemingly it is possible to reference complete path implementations
 			// we only want to iterate over local definitions. Global schemas should be handled elsewhere.
 			// TODO: check if path references can be defined globally
 			continue
+		}
+		err = ParameterRefs(names.Join(names.ToTitleTypeName(k), ParameterNameSuffix), v.Parameters, visitor)
+		if err != nil {
+			return err
 		}
 
 		err = OperationParameterRefs(http.MethodGet, v.Get, visitor)
@@ -98,6 +105,8 @@ func OperationParameterRefs(method string, operation *openapi3.Operation, visito
 			name = names.Join(names.ToTitle(method), names.ToTitleTypeName(v.Value.Name))
 		}
 
+		name = names.Join(name, ParameterNameSuffix)
+
 		err = visitor(name, v)
 		if err != nil {
 			return err
@@ -125,6 +134,7 @@ func ParameterRefs(namePrefix string, list []*openapi3.ParameterRef, visior Para
 
 		// TODO: make this name construction modifiable with a custom name construction function
 		name = names.Join(names.ToTitleTypeName(namePrefix), names.ToTitleTypeName(v.Value.Name))
+		name = names.Join(name, ParameterNameSuffix)
 
 		err = visior(name, v)
 		if err != nil {
