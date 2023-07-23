@@ -7,7 +7,7 @@ import (
 
 var (
 	nonAlphaNum     *regexp.Regexp = regexp.MustCompile(`[^a-zA-Z0-9]`)
-	numericPrefix   *regexp.Regexp = regexp.MustCompile(`^[0-1]+`)
+	numericPrefix   *regexp.Regexp = regexp.MustCompile(`^[0-9]+`)
 	pathPlaceholder *regexp.Regexp = regexp.MustCompile(`\{([^\{\}]+)\}`)
 )
 
@@ -32,7 +32,7 @@ func ToTypeName(name string) string {
 		name = Join(name[:len(name)-2], "s")
 	}
 
-	name = UnwrapPathPlaceholder(name, ToTypeName)
+	name = UnwrapPathPlaceholder(name, ToTitle)
 
 	return nonAlphaNum.ReplaceAllString(name, "")
 }
