@@ -27,6 +27,12 @@ jobs:
         go-version: ['stable', 'oldstable']
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
+    permissions:
+      # required for all workflows
+      security-events: write
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
     steps:
     - name: Install Go
       uses: actions/setup-go@v4
