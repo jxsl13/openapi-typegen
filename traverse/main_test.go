@@ -41,6 +41,7 @@ func TestUniqueNames(t *testing.T) {
 			return nil
 		})
 		require.NoError(t, err)
+		t.Logf("total parameters: %d", count)
 
 		t.Logf("schemas: %s", k)
 		err = traverse.Schemas(doc, func(name string, schema *openapi3.SchemaRef) error {
@@ -55,8 +56,24 @@ func TestUniqueNames(t *testing.T) {
 			t.Logf("schema name = %s", name)
 			return nil
 		})
-
 		require.NoError(t, err)
+		t.Logf("total schemas: %d", count)
+
+		t.Logf("request bodies: %s", k)
+		err = traverse.RequestBodies(doc, func(name string, request *openapi3.RequestBodyRef) error {
+			require.NotRegexp(t, `^\d+`, name, "name starts with integer")
+			require.NotNil(t, request)
+			require.NotNil(t, request.Value)
+			require.Empty(t, request.Ref)
+			count++
+
+			assert.Falsef(t, names[name], "duplicate request bodies name: %s", name)
+			names[name] = true
+			t.Logf("request body name = %s", name)
+			return nil
+		})
+		require.NoError(t, err)
+		t.Logf("total request bodies: %d", count)
 	}
 
 }
@@ -81,6 +98,7 @@ func TestTraverseParameters(t *testing.T) {
 			return nil
 		})
 		require.NoError(t, err)
+		t.Logf("total parameters: %d", count)
 	}
 
 }
@@ -105,6 +123,31 @@ func TestTraverseSchemas(t *testing.T) {
 			return nil
 		})
 		require.NoError(t, err)
+		t.Logf("total schemas: %d", count)
 	}
+}
 
+func TestTraverseRequestBodies(t *testing.T) {
+
+	for k, doc := range Documents {
+		t.Logf("document: %s", k)
+		names := make(map[string]bool, 128)
+
+		count := 0
+		t.Logf("request bodies: %s", k)
+		err := traverse.RequestBodies(doc, func(name string, request *openapi3.RequestBodyRef) error {
+			require.NotRegexp(t, `^\d+`, name, "name starts with integer")
+			require.NotNil(t, request)
+			require.NotNil(t, request.Value)
+			require.Empty(t, request.Ref)
+			count++
+
+			assert.Falsef(t, names[name], "duplicate request bodies name: %s", name)
+			names[name] = true
+			t.Logf("request body name = %s", name)
+			return nil
+		})
+		require.NoError(t, err)
+		t.Logf("total request bodies: %d", count)
+	}
 }
