@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/jxsl13/openapi-typegen/names"
 )
 
 var ParameterNameSuffix = "Parameter"
@@ -12,25 +11,20 @@ var ParameterNameSuffix = "Parameter"
 // Parameters traverses #/components/parameters
 // and individual inline defined parameters
 func Parameters(doc *openapi3.T, visitor ParameterRefVisitor) error {
-	if doc.Components == nil {
-		return nil
-	}
 
-	var (
-		parameters = doc.Components.Parameters
-		err        error
-	)
-
-	for k, v := range parameters {
-		if v.Ref != "" {
-			continue
-		}
-		if v.Value == nil {
-			continue
-		}
-		err = visitor(k, v)
-		if err != nil {
-			return err
+	var err error
+	if doc.Components != nil {
+		for k, v := range doc.Components.Parameters {
+			if v.Ref != "" {
+				continue
+			}
+			if v.Value == nil {
+				continue
+			}
+			err = visitor(k, v)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -41,54 +35,50 @@ func Parameters(doc *openapi3.T, visitor ParameterRefVisitor) error {
 			// TODO: check if path references can be defined globally
 			continue
 		}
-		err = ParameterRefs(names.Join(names.ToTitleTypeName(k), ParameterNameSuffix), v.Parameters, visitor)
+		err = ParameterRefs(k, v.Parameters, visitor)
 		if err != nil {
 			return err
 		}
 
-		err = OperationParameterRefs(http.MethodGet, v.Get, visitor)
+		err = OperationParameterRefs(http.MethodGet, k, v.Get, visitor)
 		if err != nil {
 			return err
 		}
-		err = OperationParameterRefs(http.MethodHead, v.Head, visitor)
+		err = OperationParameterRefs(http.MethodHead, k, v.Head, visitor)
 		if err != nil {
 			return err
 		}
-		err = OperationParameterRefs(http.MethodOptions, v.Options, visitor)
+		err = OperationParameterRefs(http.MethodOptions, k, v.Options, visitor)
 		if err != nil {
 			return err
 		}
-		err = OperationParameterRefs(http.MethodPatch, v.Patch, visitor)
+		err = OperationParameterRefs(http.MethodPatch, k, v.Patch, visitor)
 		if err != nil {
 			return err
 		}
-		err = OperationParameterRefs(http.MethodPost, v.Post, visitor)
+		err = OperationParameterRefs(http.MethodPost, k, v.Post, visitor)
 		if err != nil {
 			return err
 		}
-		err = OperationParameterRefs(http.MethodPut, v.Put, visitor)
+		err = OperationParameterRefs(http.MethodPut, k, v.Put, visitor)
 		if err != nil {
 			return err
 		}
-		err = OperationParameterRefs(http.MethodTrace, v.Trace, visitor)
+		err = OperationParameterRefs(http.MethodTrace, k, v.Trace, visitor)
 		if err != nil {
 			return err
 		}
-
 	}
 
 	return nil
 }
 
-func OperationParameterRefs(method string, operation *openapi3.Operation, visitor ParameterRefVisitor) error {
+func OperationParameterRefs(method, path string, operation *openapi3.Operation, visitor ParameterRefVisitor) error {
 	if operation == nil {
 		return nil
 	}
 
-	var (
-		name string
-		err  error
-	)
+	var err error
 	for _, v := range operation.Parameters {
 		if v.Ref != "" {
 			// skip references because they are handled else where
@@ -97,16 +87,7 @@ func OperationParameterRefs(method string, operation *openapi3.Operation, visito
 		if v.Value == nil {
 			continue
 		}
-
-		// TODO: make this name construction modifiable with a custom name construction function
-		if operation.OperationID != "" {
-			name = names.Join(names.ToTitleTypeName(operation.OperationID), names.ToTitleTypeName(v.Value.Name))
-		} else {
-			name = names.Join(names.ToTitle(method), names.ToTitleTypeName(v.Value.Name))
-		}
-
-		name = names.Join(name, ParameterNameSuffix)
-
+		name := NameFromOperationParameterRef(method, path, operation.OperationID, v, ParameterNameSuffix)
 		err = visitor(name, v)
 		if err != nil {
 			return err
@@ -115,11 +96,8 @@ func OperationParameterRefs(method string, operation *openapi3.Operation, visito
 	return nil
 }
 
-func ParameterRefs(namePrefix string, list []*openapi3.ParameterRef, visior ParameterRefVisitor) error {
-	var (
-		name string
-		err  error
-	)
+func ParameterRefs(operationName string, list []*openapi3.ParameterRef, visior ParameterRefVisitor) error {
+	var err error
 
 	// assumption: all v.Value.Name value in the list are distinct
 	for _, v := range list {
@@ -132,10 +110,7 @@ func ParameterRefs(namePrefix string, list []*openapi3.ParameterRef, visior Para
 			continue
 		}
 
-		// TODO: make this name construction modifiable with a custom name construction function
-		name = names.Join(names.ToTitleTypeName(namePrefix), names.ToTitleTypeName(v.Value.Name))
-		name = names.Join(name, ParameterNameSuffix)
-
+		name := NameFromParameter(operationName, v.Value, ParameterNameSuffix)
 		err = visior(name, v)
 		if err != nil {
 			return err
