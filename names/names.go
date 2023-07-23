@@ -6,11 +6,11 @@ import (
 )
 
 var (
-	nonAlphaNum   *regexp.Regexp = regexp.MustCompile(`[^a-zA-Z0-9-_]`)
+	nonAlphaNum   *regexp.Regexp = regexp.MustCompile(`[^a-zA-Z0-9]`)
 	numericPrefix *regexp.Regexp = regexp.MustCompile(`^[0-1]+`)
 )
 
-// ToTypeName removes all special characters
+// ToTypeName removes all non alpha numeric characters
 // Because OperationIDs are supposed to be universally unique,
 // we do not add anything in front or at the end (for now).
 // Tho, identifiers starting with an integer will get a N prefix.
