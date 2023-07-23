@@ -1,7 +1,6 @@
 package traverse
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -20,8 +19,11 @@ func Parameters(doc *openapi3.T, visitor ParameterRefVisitor) error {
 	)
 
 	for k, v := range parameters {
+		if v.Ref != "" {
+			continue
+		}
 		if v.Value == nil {
-			panic(fmt.Sprintf("component parameter %q is nil", k))
+			continue
 		}
 		err = visitor(k, v)
 		if err != nil {
@@ -91,12 +93,10 @@ func OperationParameterRefs(method string, operation *openapi3.Operation, visito
 
 		// TODO: make this name construction modifiable with a custom name construction function
 		if operation.OperationID != "" {
-			name = names.Join(names.ToTitle(operation.OperationID), names.ToTitle(v.Value.Name))
+			name = names.Join(names.ToTitleTypeName(operation.OperationID), names.ToTitleTypeName(v.Value.Name))
 		} else {
-			name = names.Join(names.ToTitle(method), names.ToTitle(v.Value.Name))
+			name = names.Join(names.ToTitle(method), names.ToTitleTypeName(v.Value.Name))
 		}
-
-		name = names.ToTypeName(name)
 
 		err = visitor(name, v)
 		if err != nil {
@@ -124,8 +124,7 @@ func ParameterRefs(namePrefix string, list []*openapi3.ParameterRef, visior Para
 		}
 
 		// TODO: make this name construction modifiable with a custom name construction function
-		name = names.Join(names.ToTitle(namePrefix), names.ToTitle(v.Value.Name))
-		name = names.ToTypeName(name)
+		name = names.Join(names.ToTitleTypeName(namePrefix), names.ToTitleTypeName(v.Value.Name))
 
 		err = visior(name, v)
 		if err != nil {

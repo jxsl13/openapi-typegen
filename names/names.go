@@ -10,6 +10,12 @@ var (
 	numericPrefix *regexp.Regexp = regexp.MustCompile(`^[0-1]+`)
 )
 
+// ToTitleTypeName first makes the string title cased and then
+// transforms it to a Go compliant type name (identifier)
+func ToTitleTypeName(name string) string {
+	return ToTypeName(ToTitle(name))
+}
+
 // ToTypeName removes all non alpha numeric characters
 // Because OperationIDs are supposed to be universally unique,
 // we do not add anything in front or at the end (for now).
@@ -18,6 +24,13 @@ func ToTypeName(name string) string {
 	if numericPrefix.MatchString(name) {
 		name = "N" + name
 	}
+
+	// some api specs use weird names
+	// we make plural from array types
+	if strings.HasSuffix(name, "[]") {
+		name = Join(name[:len(name)-2], "s")
+	}
+
 	return nonAlphaNum.ReplaceAllString(name, "")
 }
 
