@@ -1,8 +1,19 @@
 package traverse
 
 import (
+	"net/http"
+	"strconv"
+	"strings"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/jxsl13/openapi-typegen/names"
+)
+
+var (
+	RequestBodyNameSuffix = "Request"
+	ResponseNameSuffix    = "Response"
+	ParameterNameSuffix   = "Parameter"
+	HeaderNameSuffix      = "Header"
 )
 
 func NameFromOperation(method, path string, operation *openapi3.Operation, suffix string) string {
@@ -46,4 +57,34 @@ func NameFromParameter(path string, parameter *openapi3.Parameter, suffix string
 		names.ToTitleTypeName(parameter.Name),
 		suffix,
 	)
+}
+
+func NameFromComponentRequestBodyMediaType(name, mimeType string, suffix string) string {
+	return names.Join(
+		names.ToTitleTypeName(name),
+		names.ToTitleTypeName(mimeType),
+		names.ToTitleTypeName(suffix),
+	)
+}
+
+func NameFromStatusCode(status string) string {
+	code, err := strconv.ParseInt(status, 10, 32)
+	if err != nil {
+		switch strings.ToUpper(status) {
+		case "1XX":
+			return "Info"
+		case "2XX":
+			return "Success"
+		case "3XX":
+			return "Redirect"
+		case "4XX":
+			return "ClientError"
+		case "5XX":
+			return "ServerError"
+		default:
+			return names.ToTitleTypeName(status)
+		}
+	}
+
+	return names.ToTitleTypeName(http.StatusText(int(code)))
 }

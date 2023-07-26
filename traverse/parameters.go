@@ -6,8 +6,6 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-var ParameterNameSuffix = "Parameter"
-
 // Parameters traverses #/components/parameters
 // and individual inline defined parameters
 func Parameters(doc *openapi3.T, visitor ParameterRefVisitor) error {

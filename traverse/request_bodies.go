@@ -6,8 +6,6 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-var RequestBodyNameSuffix = "Request"
-
 // Parameters traverses #/components/parameters
 // and individual inline defined parameters
 func RequestBodies(doc *openapi3.T, visitor RequestBodyRefVisitor) error {
