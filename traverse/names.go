@@ -59,7 +59,7 @@ func NameFromParameter(path string, parameter *openapi3.Parameter, suffix string
 	)
 }
 
-func NameFromComponentRequestBodyMediaType(name, mimeType string, suffix string) string {
+func NameFromComponentMediaType(name, mimeType string, suffix string) string {
 	return names.Join(
 		names.ToTitleTypeName(name),
 		names.ToTitleTypeName(mimeType),

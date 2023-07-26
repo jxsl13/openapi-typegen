@@ -9,7 +9,6 @@ import (
 	"github.com/jxsl13/openapi-typegen/testutils"
 	"github.com/jxsl13/openapi-typegen/traverse"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 var Documents map[string]*openapi3.T
@@ -24,10 +23,10 @@ func TestMain(m *testing.M) {
 func TestTraverseSchemas(t *testing.T) {
 
 	expectedSchemas := map[string]int{
-		"001_mangadex.yaml":   97,
+		"001_schemas.yaml":    9,
 		"002_parameters.yaml": 2,
 		"003_components.yaml": 43,
-		"004_schemas.yaml":    9,
+		"100_mangadex.yaml":   97,
 	}
 
 	iterateDocuments(func(k string, doc *openapi3.T) error {
@@ -36,21 +35,23 @@ func TestTraverseSchemas(t *testing.T) {
 
 		count := 0
 		err := traverse.Schemas(doc, func(name string, schema *openapi3.SchemaRef) error {
-			require.NotRegexp(t, `^\d+`, name, "name starts with integer")
-			require.NotNil(t, schema)
-			require.NotNil(t, schema.Value)
-			require.Empty(t, schema.Ref)
+			assert.NotRegexp(t, `^\d+`, name, "name starts with integer")
+			assert.NotNil(t, schema)
+			assert.NotNil(t, schema.Value)
+			assert.Empty(t, schema.Ref)
 			count++
 
 			assert.Falsef(t, names[name], "duplicate schema name: %s", name)
 			names[name] = true
-			t.Logf("schema name = %s", name)
+
+			v := schema.Value
+			t.Logf("schema name = %s (type=%s format=%s)", name, v.Type, v.Format)
 			return nil
 		})
-		require.NoError(t, err)
+		assert.NoError(t, err)
 		t.Logf("total schemas: %d", count)
 
-		require.Equal(t, expectedSchemas[k], count)
+		assert.Equal(t, expectedSchemas[k], count)
 
 		return nil
 	})
