@@ -3,7 +3,7 @@ package traverse
 import "github.com/getkin/kin-openapi/openapi3"
 
 // Components traverses the given components and all unique non-reference schemas in it.
-func Components(components *openapi3.Components, visitor SchemaVisitor, levelNames ...string) error {
+func Components(components *openapi3.Components, visitor SchemaVisitor, levelNames map[string][]string) error {
 	if components == nil {
 		return nil
 	}
@@ -18,7 +18,7 @@ func Components(components *openapi3.Components, visitor SchemaVisitor, levelNam
 		if schema.Ref != "" {
 			continue
 		}
-		err = visitor(schema, append(levelNames, schemaName, SchemaSuffix)...)
+		err = visitor(schema, add(levelNames, NameKey, schemaName, TypeKey, SchemaType))
 		if err != nil {
 			return err
 		}
@@ -33,7 +33,7 @@ func Components(components *openapi3.Components, visitor SchemaVisitor, levelNam
 			continue
 		}
 
-		err = Header(header, visitor, append(levelNames, headerName)...)
+		err = Header(header, visitor, add(levelNames, NameKey, headerName))
 		if err != nil {
 			return err
 		}
@@ -48,7 +48,7 @@ func Components(components *openapi3.Components, visitor SchemaVisitor, levelNam
 		if parameter.Ref != "" {
 			continue
 		}
-		err = Parameter(parameter, visitor, append(levelNames, parameterName)...)
+		err = Parameter(parameter, visitor, add(levelNames, NameKey, parameterName))
 		if err != nil {
 			return err
 		}
@@ -62,7 +62,7 @@ func Components(components *openapi3.Components, visitor SchemaVisitor, levelNam
 		if requestBody.Ref != "" {
 			continue
 		}
-		err = RequestBody(requestBody, visitor, append(levelNames, requestBodyName)...)
+		err = RequestBody(requestBody, visitor, add(levelNames, NameKey, requestBodyName))
 		if err != nil {
 			return err
 		}
@@ -76,7 +76,7 @@ func Components(components *openapi3.Components, visitor SchemaVisitor, levelNam
 		if response.Ref != "" {
 			continue
 		}
-		err = Response(response, visitor, append(levelNames, responseName)...)
+		err = Response(response, visitor, add(levelNames, NameKey, responseName))
 		if err != nil {
 			return err
 		}
@@ -90,7 +90,7 @@ func Components(components *openapi3.Components, visitor SchemaVisitor, levelNam
 		if callback.Ref != "" {
 			continue
 		}
-		err = Callback(callback, visitor, append(levelNames, callbackName)...)
+		err = Callback(callback, visitor, add(levelNames, NameKey, callbackName))
 		if err != nil {
 			return err
 		}

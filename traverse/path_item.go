@@ -3,7 +3,7 @@ package traverse
 import "github.com/getkin/kin-openapi/openapi3"
 
 // PathItem traverses the given path item and calls the visitor for each schema.
-func PathItem(pathItem *openapi3.PathItem, visitor SchemaVisitor, levelNames ...string) error {
+func PathItem(pathItem *openapi3.PathItem, visitor SchemaVisitor, levelNames map[string][]string) error {
 	if pathItem == nil {
 		return nil
 	}
@@ -20,7 +20,7 @@ func PathItem(pathItem *openapi3.PathItem, visitor SchemaVisitor, levelNames ...
 		if parameter.Ref != "" {
 			continue
 		}
-		err = Parameter(parameter, visitor, levelNames...)
+		err = Parameter(parameter, visitor, levelNames)
 		if err != nil {
 			return err
 		}
@@ -31,7 +31,8 @@ func PathItem(pathItem *openapi3.PathItem, visitor SchemaVisitor, levelNames ...
 			continue
 		}
 
-		if err := Operation(operation, visitor, append(levelNames, method, operation.OperationID)...); err != nil {
+		err = Operation(operation, visitor, add(levelNames, MethodKey, method, OperationKey, operation.OperationID))
+		if err != nil {
 			return err
 		}
 	}

@@ -1,26 +1,20 @@
 package traverse_test
 
 import (
+	"os"
 	"sort"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/jxsl13/openapi-typegen/testutils"
 	"github.com/jxsl13/openapi-typegen/traverse"
-	"github.com/stretchr/testify/require"
+	"github.com/k0kubun/pp/v3"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
 	Documents        = testutils.LoadSpecs(`\d+.*.yaml`, "../testdata/")
 	OrderedDocuments = mapToOrderedTupleList(Documents)
-
-	SuffixMap = map[string]bool{
-		traverse.RequestSuffix:   true,
-		traverse.ResponseSuffix:  true,
-		traverse.HeaderSuffix:    true,
-		traverse.ParameterSuffix: true,
-		traverse.SchemaSuffix:    true,
-	}
 )
 
 type Tuple struct {
@@ -47,23 +41,47 @@ func mapToOrderedTupleList(m map[string]*openapi3.T) []Tuple {
 	return tuples
 }
 
-func TestTraverse(t *testing.T) {
-	for _, tuple := range OrderedDocuments {
-		cnt := 0
-		//unique := make(map[string]bool, 64)
-		lenBuckets := make(map[int]int, 64)
+func TestMain(m *testing.M) {
+	pp.Default.SetColoringEnabled(false)
+	os.Exit(m.Run())
+}
 
-		err := traverse.Document(tuple.Doc, func(schemaRef *openapi3.SchemaRef, levelNames ...string) error {
-			t.Logf("document: %s, levelNames: %v", tuple.Name, levelNames)
-			require.Greater(t, len(levelNames), 0)
-			cnt++
+func TestSingleMustContainTypeKey(t *testing.T) {
+	doc := Documents["004_callbacks.yaml"]
 
-			lenBuckets[len(levelNames)]++
+	traverse.Document(doc, func(schemaRef *openapi3.SchemaRef, levelNames map[string][]string) error {
+		assert.Contains(t, levelNames, traverse.TypeKey)
+		return nil
+	})
+}
+
+func TestAllMustContainTypeKey(t *testing.T) {
+
+	for _, doc := range OrderedDocuments {
+		traverse.Document(doc.Doc, func(schemaRef *openapi3.SchemaRef, levelNames map[string][]string) error {
+			assert.Contains(t, levelNames, traverse.TypeKey)
 			return nil
 		})
-		t.Logf("document: %s, cnt: %d", tuple.Name, cnt)
-		t.Logf("document: %s, lenBuckets: %v", tuple.Name, lenBuckets)
-		require.NoError(t, err)
+	}
+}
 
+func TestSingleMustContainOneTypeKey(t *testing.T) {
+	doc := Documents["004_callbacks.yaml"]
+
+	traverse.Document(doc, func(schemaRef *openapi3.SchemaRef, levelNames map[string][]string) error {
+		//must only contain one type name
+		assert.Equal(t, len(levelNames[traverse.TypeKey]), 1)
+		return nil
+	})
+}
+
+func TestAllMustContainOneTypeKey(t *testing.T) {
+
+	for _, doc := range OrderedDocuments {
+		traverse.Document(doc.Doc, func(schemaRef *openapi3.SchemaRef, levelNames map[string][]string) error {
+			//must only contain one type name
+			assert.Equal(t, len(levelNames[traverse.TypeKey]), 1)
+			return nil
+		})
 	}
 }

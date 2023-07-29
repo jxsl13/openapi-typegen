@@ -3,7 +3,7 @@ package traverse
 import "github.com/getkin/kin-openapi/openapi3"
 
 // Callback traverses all unique non-reference schemas in the given callback.
-func Callback(callback *openapi3.CallbackRef, visitor SchemaVisitor, levelNames ...string) error {
+func Callback(callback *openapi3.CallbackRef, visitor SchemaVisitor, levelNames map[string][]string) error {
 	if callback == nil {
 		return nil
 	}
@@ -23,7 +23,7 @@ func Callback(callback *openapi3.CallbackRef, visitor SchemaVisitor, levelNames 
 			continue
 		}
 
-		err = PathItem(pathItem, visitor, append(levelNames, callbackName)...)
+		err = PathItem(pathItem, visitor, add(levelNames, NameKey, callbackName))
 		if err != nil {
 			return err
 		}
