@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/jxsl13/openapi-typegen/names"
+	"github.com/jxsl13/openapi-typegen/options"
 	"github.com/jxsl13/openapi-typegen/testutils"
 	"github.com/jxsl13/openapi-typegen/traverse"
 	"github.com/k0kubun/pp/v3"
@@ -88,36 +88,14 @@ func TestAllMustContainOneTypeKey(t *testing.T) {
 	}
 }
 
-func Name(levelNames map[string][]string) string {
-	var parts []string
-	if len(levelNames[traverse.OperationKey]) != 0 {
-		// using operation id
-		parts = names.SplitAll(levelNames[traverse.OperationKey]...)
-	} else {
-		// no operation id, using other keys
-		parts = names.SplitAll(levelNames[traverse.MethodKey]...)
-
-		parts = append(parts, names.SplitAll(names.UnwrapAllPathPlaceholders(names.ToTitle, levelNames[traverse.PathKey]...)...)...)
-	}
-
-	parts = append(parts, names.SplitAll(levelNames[traverse.NameKey]...)...)
-	parts = append(parts, names.SplitAll(levelNames[traverse.InKey]...)...)
-
-	parts = append(parts, names.SplitAll(names.MimeTypes(levelNames[traverse.ContentKey])...)...)
-	parts = append(parts, names.SplitAll(names.StatusCodes(levelNames[traverse.StatusKey])...)...)
-
-	parts = append(parts, names.SplitAll(levelNames[traverse.TypeKey]...)...)
-
-	return names.JoinTitleTypeNames(parts...)
-}
-
 func TestSingleUniqueOperation(t *testing.T) {
 	doc := Documents["002_parameters.yaml"]
 
 	namesMap := make(map[string]bool)
 	traverse.Document(doc, func(schemaRef *openapi3.SchemaRef, levelNames map[string][]string) error {
-		name := Name(levelNames)
+		name := options.UniqueName(levelNames)
 		t.Logf("unique name: %s", name)
+		require.NotEmpty(t, name, "name is empty")
 		require.NotContains(t, namesMap, name)
 		namesMap[name] = true
 
@@ -129,11 +107,14 @@ func TestAllUniqueOperation(t *testing.T) {
 
 	for _, doc := range OrderedDocuments {
 		namesMap := make(map[string]bool)
+		stackTraceMap := make(map[string]string)
 		traverse.Document(doc.Doc, func(schemaRef *openapi3.SchemaRef, levelNames map[string][]string) error {
-			name := Name(levelNames)
+			name := options.UniqueName(levelNames)
+			require.NotEmpty(t, name, "name is empty")
 			t.Logf("document: %s unique name: %s", doc.Name, name)
-			require.NotContains(t, namesMap, name)
+			require.NotContainsf(t, namesMap, name, "previously seen at: %s", stackTraceMap[name])
 			namesMap[name] = true
+			stackTraceMap[name] = testutils.StackTraceString()
 
 			return nil
 		})

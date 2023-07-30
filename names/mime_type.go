@@ -2,16 +2,9 @@ package names
 
 import (
 	"strings"
-
-	"github.com/gabriel-vasile/mimetype"
 )
 
 func MimeType(mt string) string {
-	m := mimetype.Lookup(mt)
-	if m != nil {
-		mt = m.String()
-	}
-
 	parts := strings.Split(mt, ";")
 	if len(parts) == 2 {
 		mt = parts[0]
@@ -24,10 +17,10 @@ func MimeType(mt string) string {
 
 	parts = strings.Split(mt, "+")
 	if len(parts) == 2 {
-		mt = parts[len(parts)-1]
+		return JoinTitleTypeNames(parts...)
 	}
 
-	return mt
+	return JoinTitleTypeNames(mt)
 }
 
 func MimeTypes(mimes []string) []string {

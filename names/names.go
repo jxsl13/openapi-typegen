@@ -60,6 +60,20 @@ func JoinTitleTypeNames(names ...string) string {
 	return PrefixInteger(Join(titledTypes...))
 }
 
+func Append(name string, names ...string) string {
+	return strings.Join(append([]string{name}, names...), "")
+}
+
+func Ignore(ignored string, names ...string) []string {
+	result := make([]string, 0, len(names))
+	for _, name := range names {
+		if !strings.EqualFold(ignored, name) {
+			result = append(result, name)
+		}
+	}
+	return result
+}
+
 // Join concatenates all strings removing duplicate overlaps between joins
 // and overlaps across all previous joined strings with the next
 // abC + CdF + Fgh = abCdeFgh
