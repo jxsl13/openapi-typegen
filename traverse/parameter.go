@@ -10,9 +10,7 @@ func Parameter(parameter *openapi3.ParameterRef, visitor SchemaVisitor, levelNam
 	if parameter.Ref != "" {
 		return nil
 	}
-	if parameter.Value == nil {
-		return nil
-	}
+
 	err := ParameterSchema(parameter.Value, visitor, levelNames)
 	if err != nil {
 		return err

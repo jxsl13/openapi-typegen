@@ -2,29 +2,39 @@ package names
 
 import "strings"
 
+// Deduplicate is a function that removes all strings in a string slice which are contained in other strings in the slice.
 func Deduplicate(names []string) []string {
-	dups := make(map[int]bool, len(names)-1)
-	for i := range names {
-		for j := range names {
+	result := make([]string, 0, len(names))
+	for i := 0; i < len(names); i++ {
+		// we look at ni whether to add it to the result
+		ni := strings.ToLower(names[i])
+		dup := false
+		for j := 0; j < len(names); j++ {
 			if i == j {
 				continue
 			}
-			ni := strings.ToLower(names[i])
 			nj := strings.ToLower(names[j])
-			if strings.Contains(ni, nj) {
-				dups[j] = true
-			} else if strings.Contains(nj, ni) {
-				dups[i] = true
+			// other string contains current string
+			if strings.Contains(nj, ni) && ni != nj {
+				dup = true
+				break
 			}
 		}
-	}
+		if !dup {
+			dup = false
+			for _, r := range result {
+				if strings.Contains(strings.ToLower(r), ni) {
+					dup = true
+					break
+				}
+			}
+			if !dup {
+				result = append(result, names[i])
+			}
 
-	result := make([]string, 0, len(names)-len(dups))
-	for idx, name := range names {
-		if !dups[idx] {
-			result = append(result, name)
 		}
 	}
 
 	return result
+
 }

@@ -22,17 +22,18 @@ func ToTitleTypeName(name string) string {
 // we do not add anything in front or at the end (for now).
 // Tho, identifiers starting with an integer will get a N prefix.
 func ToTypeName(name string) string {
-	if numericPrefix.MatchString(name) {
-		name = "N" + name
-	}
+	name = PrefixInteger(name)
+	return toTypeName(name)
+}
 
+func toTypeName(name string) string {
 	// some api specs use weird names
 	// we make plural from array types
 	if strings.HasSuffix(name, "[]") {
 		name = Join(name[:len(name)-2], "s")
 	}
 
-	name = UnwrapPathPlaceholder(name, ToTitle)
+	name = UnwrapPathPlaceholder(ToTitle, name)
 
 	return nonAlphaNum.ReplaceAllString(name, "")
 }
@@ -40,10 +41,48 @@ func ToTypeName(name string) string {
 func ToTitle(name string) string {
 	//lint:ignore SA1019 for our use case this function is enough, as we only work with alphanumeric characters
 	return strings.Title(name)
+
+}
+
+func PrefixInteger(name string) string {
+	if numericPrefix.MatchString(name) {
+		name = "N" + name
+	}
+	return name
+}
+
+func JoinTitleTypeNames(names ...string) string {
+	titledTypes := make([]string, 0, len(names))
+	for _, name := range names {
+		titledTypes = append(titledTypes, toTypeName(ToTitle(name)))
+	}
+
+	return PrefixInteger(Join(titledTypes...))
+}
+
+// Join concatenates all strings removing duplicate overlaps between joins
+// and overlaps across all previous joined strings with the next
+// abC + CdF + Fgh = abCdeFgh
+func Join(names ...string) string {
+	if len(names) == 0 {
+		return ""
+	} else if len(names) == 1 {
+		return names[0]
+	}
+
+	var (
+		result = names[0]
+		curr   string
+	)
+	for i := 1; i < len(names); i++ {
+		curr = names[i]
+		result = Merge(result, curr)
+	}
+	return result
 }
 
 // Unwraps and modifies unwrapped values: {version} -> modify(version)
-func UnwrapPathPlaceholder(name string, modifyNew func(string) string) string {
+func UnwrapPathPlaceholder(modifyNew func(string) string, name string) string {
 	matches := pathPlaceholder.FindAllStringSubmatch(name, -1)
 	if len(matches) == 0 {
 		return name
@@ -60,23 +99,11 @@ func UnwrapPathPlaceholder(name string, modifyNew func(string) string) string {
 	return replacer.Replace(name)
 }
 
-// Join concatenates all strings removing duplicate overlaps between joins
-// and overlaps across all previous joined strings with the next
-// abC + CdF + Fgh = abCdeFgh
-func Join(names ...string) string {
-	if len(names) == 0 {
-		return ""
-	} else if len(names) <= 1 {
-		return names[0]
-	}
-
-	var (
-		result = names[0]
-		curr   string
-	)
-	for i := 1; i < len(names); i++ {
-		curr = names[i]
-		result = Merge(result, curr)
+// UnwrapAllPathPlaceholders unwraps all path placeholders
+func UnwrapAllPathPlaceholders(modify func(string) string, name ...string) []string {
+	result := make([]string, 0, len(name))
+	for _, n := range name {
+		result = append(result, UnwrapPathPlaceholder(modify, n))
 	}
 	return result
 }

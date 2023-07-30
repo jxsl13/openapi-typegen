@@ -3,6 +3,8 @@ module github.com/jxsl13/openapi-typegen
 go 1.20
 
 require (
+	github.com/fatih/camelcase v1.0.0
+	github.com/gabriel-vasile/mimetype v1.4.2
 	github.com/getkin/kin-openapi v0.118.0
 	github.com/k0kubun/pp/v3 v3.2.0
 	github.com/knadh/koanf/maps v0.1.1
@@ -36,6 +38,7 @@ require (
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
+	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

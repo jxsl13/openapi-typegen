@@ -1,0 +1,16 @@
+{
+    "configurations": [
+    {
+        "name": "Launch file",
+        "type": "go",
+        "request": "launch",
+        "mode": "debug",
+        "program": "${file}",
+        "args": [
+            "-count=1",
+            "-v",
+            "-timeout=300s",
+        ]
+    }
+    ]
+}
