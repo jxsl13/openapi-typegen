@@ -1,7 +1,10 @@
-package names
+package strutils
 
 import "strings"
 
+// Overlap returns the maximum overlap of two strings.
+// The end of the first string is compared to the beginning of the second string.
+// Order of the strings is important.
 func Overlap(a, b string) int {
 	if len(a) == 0 || len(b) == 0 {
 		return 0

@@ -1,8 +1,9 @@
-package names
+package strutils
 
 import "strings"
 
-// Deduplicate is a function that removes all strings in a string slice which are contained in other strings in the slice.
+// Deduplicate removes duplicate string that are either equal or contain each other.
+// The string contained in the other string will be removed.
 func Deduplicate(names []string) []string {
 	result := make([]string, 0, len(names))
 	for i := 0; i < len(names); i++ {

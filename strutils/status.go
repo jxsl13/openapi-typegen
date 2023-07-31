@@ -1,4 +1,4 @@
-package names
+package strutils
 
 import (
 	"net/http"
@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+// StatusCode returns the status code name for a given status code.
+// If the status code is not a valid integer, it will be returned as is.
+// If the status code is a valid integer, but not a valid http status code,
+// it will be returned as is.
 func StatusCode(status string) string {
 	code, err := strconv.ParseInt(status, 10, 32)
 	if err != nil {
@@ -21,16 +25,16 @@ func StatusCode(status string) string {
 		case "5XX":
 			return "ServerError"
 		default:
-			return ToTitleTypeName(status)
+			return TypeName(status)
 		}
 	}
 
 	text := http.StatusText(int(code))
 	if text == "" {
-		return ToTitleTypeName(status)
+		return TypeName(status)
 	}
 
-	text = ToTitleTypeName(strings.ToLower(text))
+	text = TypeName(strings.ToLower(text))
 	return text
 }
 
