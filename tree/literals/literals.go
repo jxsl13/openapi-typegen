@@ -28,7 +28,6 @@ func String[T stringLit](value T) *ast.BasicLit {
 type integerLit interface {
 	int | int8 | int16 | int32 | int64 |
 		uint | uint8 | uint16 | uint32 | uint64 | uintptr
-	// TODO: do we need a string here?
 }
 
 // Int returns an integer literal for the given value.

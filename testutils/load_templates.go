@@ -4,12 +4,16 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/jxsl13/openapi-typegen/template"
+	"github.com/jxsl13/openapi-typegen/fsutils"
+	"github.com/jxsl13/openapi-typegen/templates"
 )
 
-// LoadTemplates loads all .go files that are not test files from the given relative directory path which is relative to the current source file directory.
-func LoadTemplates(regex, dirPath string) (*token.FileSet, map[string]*ast.File) {
-	fs, files, err := template.Templates(regex, dirPath)
+// LoadTemplates loads all .go files starting with template_ or ending with _template.go
+// from the templates folder
+func LoadTemplates() (*token.FileSet, map[string]*ast.File) {
+
+	const dirPath = "../templates/"
+	fs, files, err := templates.LoadAll(fsutils.NewOsFS(), templates.NameRegex, FilePath(dirPath))
 	if err != nil {
 		panic(err)
 	}

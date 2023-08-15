@@ -13,11 +13,11 @@ var (
 	generatorName = ""
 )
 
-func SetGeneratorName(name string) {
+func SetName(name string) {
 	generatorName = name
 }
 
-func GeneratorComment() string {
+func FileComment() string {
 	return fmt.Sprintf(magicComment, generatorName)
 }
 

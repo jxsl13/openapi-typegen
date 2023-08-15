@@ -7,7 +7,7 @@ import (
 	"regexp"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	fp "github.com/jxsl13/openapi-typegen/filepath"
+	"github.com/jxsl13/openapi-typegen/fsutils"
 )
 
 var FileRegex = ".(yml|yaml|json)$"
@@ -20,7 +20,7 @@ func Paths(regex, dirPath string) (string, []string, error) {
 		return "", nil, fmt.Errorf("failed to compile regex %q: %w", regex, err)
 	}
 
-	dir, files, err := fp.FilePaths(FileRegex, dirPath)
+	dir, files, err := fsutils.FilePaths(fsutils.NewOsFS(), regex, dirPath)
 	if err != nil {
 		return "", nil, err
 	}
@@ -43,7 +43,7 @@ func Load(relative string, options ...Option) (doc *openapi3.T, err error) {
 		},
 	}
 
-	absolutePath, err := fp.Absolute(relative)
+	absolutePath, err := fsutils.Absolute(relative)
 	if err != nil {
 		return nil, err
 	}

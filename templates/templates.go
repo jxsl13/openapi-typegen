@@ -1,28 +1,48 @@
-package template
+package templates
 
 import (
+	"embed"
 	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"os"
+	"io/fs"
 	"path/filepath"
 	"regexp"
 	"strings"
 
-	fp "github.com/jxsl13/openapi-typegen/filepath"
+	"github.com/jxsl13/openapi-typegen/fsutils"
 )
+
+//go:embed *.go
+var templateFs embed.FS
+
+var (
+	FileSet   *token.FileSet
+	Templates map[string]*ast.File
+	NameRegex = `(^template_|_template.go$)`
+)
+
+func init() {
+	fs, tpl, err := LoadAll(templateFs, NameRegex, ".")
+	if err != nil {
+		panic(fmt.Errorf("failed to load embedded templates: %w", err))
+	}
+
+	FileSet = fs
+	Templates = tpl
+}
 
 // Paths returns the absolute dir path and a list of template file names.
 // Template files are .go files that match the regex and do not end with _test.go
-func Paths(regex, dirPath string) (string, []string, error) {
+func Paths(fsys fs.FS, regex, dirPath string) (string, []string, error) {
 
 	re, err := regexp.Compile(regex)
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to compile regex %q: %w", regex, err)
 	}
 
-	dir, files, err := fp.FilePaths(".go$", dirPath)
+	dir, files, err := fsutils.FilePaths(fsys, ".go$", dirPath)
 	if err != nil {
 		return "", nil, err
 	}
@@ -39,21 +59,22 @@ func Paths(regex, dirPath string) (string, []string, error) {
 	return dir, goFiles, nil
 }
 
-// Templates returns a map of file names to ast.File pointers.
+// LoadAll returns a map of file names to ast.File pointers.
 // and a token.FileSet which is needed for comment positions.
-func Templates(regex, dirPath string) (*token.FileSet, map[string]*ast.File, error) {
-	dir, files, err := Paths(regex, dirPath)
+func LoadAll(fsys fs.FS, regex, dirPath string) (*token.FileSet, map[string]*ast.File, error) {
+	dir, files, err := Paths(fsys, regex, dirPath)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	bits := parser.ParseComments | parser.SkipObjectResolution
+	//bits := parser.ParseComments | parser.SkipObjectResolution
+	bits := parser.ParseComments
 
 	fs := token.NewFileSet()
 
 	result := make(map[string]*ast.File, len(files))
 	for _, file := range files {
-		data, err := os.ReadFile(filepath.Join(dir, file))
+		data, err := fsutils.ReadFile(fsys, filepath.Join(dir, file))
 		if err != nil {
 			return nil, nil, err
 		}

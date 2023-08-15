@@ -1,45 +1,40 @@
 package literals_test
 
 import (
-	"bytes"
 	"fmt"
-	"go/printer"
-	"go/token"
 	"testing"
 
+	"github.com/jxsl13/openapi-typegen/testutils"
 	"github.com/jxsl13/openapi-typegen/tree/literals"
 	"github.com/stretchr/testify/require"
 )
 
 func TestInt(t *testing.T) {
 
-	in := 10
-	out := fmt.Sprint(in)
+	var (
+		in       = 10
+		expected = fmt.Sprint(in)
+	)
 
-	lit := literals.Int(in)
-	buf := &bytes.Buffer{}
-	printer.Fprint(buf, token.NewFileSet(), lit)
-	require.Equal(t, out, buf.String())
+	require.Equal(t, expected, testutils.NodeString(literals.Int(in)))
 }
 
 func TestFloat(t *testing.T) {
 
-	in := 10.5
-	out := fmt.Sprint(in)
+	var (
+		in       = 10.5
+		expected = fmt.Sprint(in)
+	)
 
-	lit := literals.Float(in)
-	buf := &bytes.Buffer{}
-	printer.Fprint(buf, token.NewFileSet(), lit)
-	require.Equal(t, out, buf.String())
+	require.Equal(t, expected, testutils.NodeString(literals.Float(in)))
 }
 
 func TestString(t *testing.T) {
 
-	in := "hello world"
-	out := fmt.Sprintf("%q", in)
+	var (
+		in       = "hello world"
+		expected = fmt.Sprintf("%q", in)
+	)
 
-	lit := literals.String(in)
-	buf := &bytes.Buffer{}
-	printer.Fprint(buf, token.NewFileSet(), lit)
-	require.Equal(t, out, buf.String())
+	require.Equal(t, expected, testutils.NodeString(literals.String(in)))
 }

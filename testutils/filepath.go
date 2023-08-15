@@ -5,11 +5,15 @@ import (
 	"path/filepath"
 	"runtime"
 
-	fp "github.com/jxsl13/openapi-typegen/filepath"
+	"github.com/jxsl13/openapi-typegen/fsutils"
 )
 
-func FilePath(relative string) string {
-	_, file, _, ok := runtime.Caller(1)
+func FilePath(relative string, up ...int) string {
+	offset := 1
+	if len(up) > 0 && up[0] > 0 {
+		offset = up[0]
+	}
+	_, file, _, ok := runtime.Caller(offset)
 	if !ok {
 		panic("failed to get file path")
 	}
@@ -21,7 +25,7 @@ func FilePath(relative string) string {
 }
 
 func FilePaths(regex, relativeDirPath string) (string, []string) {
-	dir, files, err := fp.FilePaths(regex, FilePath(relativeDirPath))
+	dir, files, err := fsutils.FilePaths(fsutils.NewOsFS(), regex, FilePath(relativeDirPath))
 	if err != nil {
 		panic(err)
 	}
