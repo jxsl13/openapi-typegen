@@ -1,4 +1,4 @@
-package astutils
+package generator
 
 import (
 	"fmt"
