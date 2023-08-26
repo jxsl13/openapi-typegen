@@ -13,29 +13,38 @@ import (
 func StatusCode(status string) string {
 	code, err := strconv.ParseInt(status, 10, 32)
 	if err != nil {
-		switch strings.ToUpper(status) {
-		case "1XX":
-			return "Info"
-		case "2XX":
-			return "Success"
-		case "3XX":
-			return "Redirect"
-		case "4XX":
-			return "ClientError"
-		case "5XX":
-			return "ServerError"
-		default:
-			return TypeName(status)
-		}
+		return RangeStatusCode(status)
 	}
 
 	text := http.StatusText(int(code))
-	if text == "" {
-		return TypeName(status)
+	if text != "" {
+		return TypeName(Squeeze(text))
 	}
+	return RangeStatusCode(status)
+}
 
-	text = TypeName(strings.ToLower(text))
-	return text
+// RangeStatusCode converts nXX status codes to a string representation.
+// 1XX -> Info
+// 2XX -> Success
+// 3XX -> Redirect
+// 4XX -> ClientError
+// 5XX -> ServerError
+// Any other will be converted to a type name.
+func RangeStatusCode(nxx string) string {
+	switch strings.ToUpper(nxx) {
+	case "1XX":
+		return "Info"
+	case "2XX":
+		return "Success"
+	case "3XX":
+		return "Redirect"
+	case "4XX":
+		return "ClientError"
+	case "5XX":
+		return "ServerError"
+	default:
+		return TypeName(nxx)
+	}
 }
 
 func StatusCodes(statuses []string) []string {
