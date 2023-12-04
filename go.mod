@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/fatih/camelcase v1.0.0
-	github.com/getkin/kin-openapi v0.119.0
+	github.com/getkin/kin-openapi v0.122.0
 	github.com/k0kubun/pp/v3 v3.2.0
 	github.com/knadh/koanf/maps v0.1.1
 	github.com/knadh/koanf/parsers/dotenv v0.1.0
